@@ -6,17 +6,29 @@
     <button class="button is-large is-primary" @click="handle_RollD66()">Roll D66</button>
   </div>
   <p>
-    <IncrementInput ref="skillDice" prompt="# of Skill Dice"></IncrementInput>
+    <IncrementInput ref="skillDiceEl" prompt="# of Skill Dice"></IncrementInput>
   </p>
   <p>
-    <IncrementInput ref="stressDice" prompt="# of Stress Dice" :danger="true"></IncrementInput>
+    <IncrementInput ref="stressDiceEl" prompt="# of Stress Dice" :danger="true"></IncrementInput>
   </p>
   <p>
     <button class="button is-large is-primary" @click="handle_RollPool()">Roll D6 Pool</button>
   </p>
-  <!-- Dice Pool with updating array of results -->
-  <DicePoolResult :results="results" :danger="false"></DicePoolResult>
-  <DicePoolResult :results="stressResults" :danger="true"></DicePoolResult>
+
+  <!-- Overall results of a dice roll will be provided in key/value pairs -->
+  <h2 class="title">Results</h2>
+  <div class="results">
+    <div v-for="(value, key) in results" :key="key">
+      <span class="key">{{ key }}:</span>
+      <span class="value">{{ value }}</span>
+    </div>
+  </div>
+
+  <!-- Dice pools display the actual results of each individual die -->
+  <h3 :hidden="!skillDiceResults.length">Skill Dice</h3>
+  <DicePoolResult :results="skillDiceResults" :danger="false"></DicePoolResult>
+  <h3 :hidden="!stressDiceResults.length">Stress Dice</h3>
+  <DicePoolResult :results="stressDiceResults" :danger="true"></DicePoolResult>
 </template>
 
 <script setup>
@@ -25,12 +37,14 @@ import DicePoolResult from '@/components/DicePoolResult.vue';
 import IncrementInput from '@/components/IncrementInput.vue';
 
 // References for child elements
-const skillDice = ref(null);
-const stressDice = ref(null);
+const skillDiceEl = ref(null);
+const stressDiceEl = ref(null);
 
+// Overall results to display as an object
+const results = ref({});
 // Results of the dice pools
-let results = ref([]);
-let stressResults = ref([]);
+let skillDiceResults = ref([]);
+let stressDiceResults = ref([]);
 
 function roll6s(count) {
   const results = [];
@@ -41,33 +55,45 @@ function roll6s(count) {
 }
 
 function handle_RollD3() {
-  results.value = roll6s(1);
-  stressResults.value = [];
+  skillDiceResults.value = roll6s(1);
+  stressDiceResults.value = [];
 }
 
 function handle_RollD6() {
-  results.value = roll6s(1);
-  stressResults.value = [];
+  skillDiceResults.value = roll6s(1);
+  stressDiceResults.value = [];
 }
 
 function handle_Roll2D6() {
-  results.value = roll6s(2);
-  stressResults.value = [];
+  skillDiceResults.value = roll6s(2);
+  stressDiceResults.value = [];
 }
 
 function handle_RollD66() {
-  results.value = roll6s(2);
-  stressResults.value = [];
+  skillDiceResults.value = roll6s(2);
+  stressDiceResults.value = [];
 }
 
 function handle_RollPool() {
   // Get current values of the two IncrementInput components
-  const skillDiceCount = skillDice.value.getValue();
-  const stressDiceCount = stressDice.value.getValue();
+  const skillDiceCount = skillDiceEl.value.getValue();
+  const stressDiceCount = stressDiceEl.value.getValue();
   // Roll the skill dice and store them in results
-  results.value = roll6s(skillDiceCount);
+  skillDiceResults.value = roll6s(skillDiceCount);
   // Roll the stress dice and store them in stressResults
-  stressResults.value = roll6s(stressDiceCount);
+  stressDiceResults.value = roll6s(stressDiceCount);
+  // Count the number of 6s rolled in both pools
+  const skillDice6s = skillDiceResults.value.filter((result) => result === 6).length;
+  const stressDice6s = stressDiceResults.value.filter((result) => result === 6).length;
+  // Calculate the total number of 6s rolled
+  const total6s = skillDice6s + stressDice6s;
+  // Count the number of 1s rolled in the stress dice pool
+  const stressDice1s = stressDiceResults.value.filter((result) => result === 1).length;
+  // Update the results to include stress impact and successes
+  results.value = {
+    "Success Level": total6s,
+    "Stress Impact": stressDice1s
+  }
 }
 </script>
 
@@ -79,5 +105,34 @@ function handle_RollPool() {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.title {
+  margin-top: 1rem;
+}
+
+.results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 1.5rem;
+
+  .key {
+    font-weight: bold;
+  }
+
+  .value {
+    margin-left: 0.5rem;
+  }
+}
+
+h3 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 1rem;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 </style>
