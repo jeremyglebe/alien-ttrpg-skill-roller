@@ -1,2 +1,2 @@
 "use strict";(self["webpackChunkalien_rpg_roller"]=self["webpackChunkalien_rpg_roller"]||[]).push([[443],{7381:function(n,r,e){e.r(r),e.d(r,{default:function(){return f}});var a=e(3396);const u={class:"about"},l=(0,a._)("h1",null,"This is an about page",-1),t=[l];function s(n,r){return(0,a.wg)(),(0,a.iD)("div",u,t)}var i=e(89);const c={},o=(0,i.Z)(c,[["render",s]]);var f=o}}]);
-//# sourceMappingURL=about.74997c7c.js.map
+//# sourceMappingURL=about.9a2f39c7.js.map
